@@ -25,7 +25,7 @@ func (deck *Deck) Shuffle() {
 func (deck *Deck) PrintDeck() {
   fmt.Println("Cards")
    for _, card := range deck.Cards {
-    fmt.Println("\t", card.Name)
+    fmt.Printf("\t%v\t%v/%v\n", card.Name, card.CurrentAttack, card.CurrentHitPoints)
   } 
 
   fmt.Println("Runes")

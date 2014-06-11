@@ -1,6 +1,7 @@
 package ekcore
 
 import (
+  "log"
   "bufio"
   "os"
   // "fmt"
@@ -25,10 +26,14 @@ func LoadDeck(filepath string) *Deck {
     } else if strings.Index(line, "#") != 0 {
       if readingCards {
         cardName := line
-        card := Card{ Name: cardName, Level: 10 }
-        deck.AddCard(card)
+        // card := Card{ Name: cardName, Level: 10 }
         // fmt.Println("Card: ", card.Name)
-        // card = Card.FindByName(cardName)
+        card, found := NewCard(cardName, 10)
+        if found == true {
+          deck.AddCard(card)
+        } else {
+          log.Fatalf("Error! Card not found: %v", cardName)
+        }
       } else {
         runeName := line
         rune := Rune{ Name: runeName, Level: 10 }
