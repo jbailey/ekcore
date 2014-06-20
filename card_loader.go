@@ -49,7 +49,7 @@ func parseLine(line []string) Card {
   var lvl10SkillName = line[7]
   var lvl99SkillName = line[8]
   var attProgression = line[25]
-  var hpProgression = line[26] 
+  var hpProgression = line[24] 
 
   baseAtk, atkPerLevel := CalcAttack(attProgression)
   baseHP, hpPerLevel := CalcHP(hpProgression)
@@ -73,7 +73,7 @@ func parseLine(line []string) Card {
     Level10SkillName: lvl10SkillName,
     Level99SkillName: lvl99SkillName,
   }
-
+// log.Printf("%v { BaseAttack: %d, AttackGPL: %d, BaseHP: %d, HPGPL: %d }\n", card.Name, card.BaseAttack, card.AttackGainPerLevel, card.BaseHitPoints, card.HitPointsGainPerLevel)
   return card
 }
 

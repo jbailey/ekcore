@@ -19,8 +19,8 @@ func NewMatch(hero Player, opponent Player, heroDeck Deck, opponentDeck Deck) *M
   match := new(Match)
   match.Hero = hero
   match.Opponent = opponent
-  match.HeroBoard = NewBoard(hero, heroDeck)
-  match.OpponentBoard = NewBoard(opponent, opponentDeck)
+  match.HeroBoard = NewPlayerBoard(hero, heroDeck)
+  match.OpponentBoard = NewPlayerBoard(opponent, opponentDeck)
 
   return match
 }
@@ -34,6 +34,7 @@ func (match *Match) Run() {
 		match.Round += 1
     match.Opponent.CurrentHitPoints -= 1000
 
+    match.UpdateHandWaits()
     match.DoRound()
 
     if match.isGameOver() == true { break }
@@ -52,21 +53,46 @@ func (match *Match) init() {
   match.DefenderBoard = &match.OpponentBoard
 }
 
-func (match *Match) DoRound() {
-  for idx, card := range match.AttackerBoard.Battlefield {
-    if len(match.DefenderBoard.Battlefield) <= idx {
-      match.DirectAttack(&card, match.DefenderBoard)
-    } else {
-      defendingCard := match.DefenderBoard.Battlefield[idx]
-      match.AttackCard(&card, &defendingCard)
-    }
-  }
+func (match *Match) UpdateHandWaits() {
+
 }
 
-func (match *Match) AttackCard(attackingCard *Card, defendingCard *Card) {
+func (match *Match) DoRound() {
+  // Draw a card from the deck
+  match.AttackerBoard.DrawCard()
+  match.AttackerBoard.Hand.PrintCards()
+  // Move any cards from the hand to battefield whose timer is up
+  // Activate Runes
+  // Cards attack
+  
+}
+
+func (match *Match) CardsAttack() {
+  // for idx, card := range match.AttackerBoard.Battlefield {
+  //   if len(match.DefenderBoard.Battlefield) <= idx {
+  //     log.Println("Attacking Hero")
+  //     match.DirectAttack(&card, match.DefenderBoard)
+  //   } else {
+  //     log.Println("Attacking Card")
+  //     defendingCard := match.DefenderBoard.Battlefield[idx]
+  //     cardIsDead := match.AttackCard(&card, &defendingCard)
+  //     if cardIsDead {
+  //       match.DefenderBoard.KillCard(idx)
+  //     }
+  //   }
+  // }
+}
+
+func (match *Match) AttackCard(attackingCard *Card, defendingCard *Card) (cardIsDead bool) {
   defendingCard.CurrentHitPoints -= attackingCard.CurrentAttack
   log.Printf("%v hits %v for %d damage", attackingCard.Name, defendingCard.Name, attackingCard.CurrentAttack)
   if defendingCard.CurrentHitPoints < 0 { defendingCard.CurrentHitPoints = 0 }
+  if defendingCard.CurrentHitPoints > 0 {
+    cardIsDead = false
+  } else {
+    cardIsDead = true
+  }
+  return cardIsDead
 }
 
 func (match *Match) DirectAttack(attackingCard *Card, defendingBoard *PlayerBoard) {

@@ -24,6 +24,7 @@ type Card struct {
 func NewCard(name string, level int) (Card, bool) {
   card, found := MasterCardList[name]
   if found == true {
+    card.Level = level
     card.Init()
   }
 
