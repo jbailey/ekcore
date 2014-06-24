@@ -6,11 +6,11 @@ import (
 
 type Deck struct {
   Name string
-  Cards []Card
+  Cards []*Card
   Runes []Rune
 }
 
-func (deck *Deck) AddCard(card Card) {
+func (deck *Deck) AddCard(card *Card) {
   deck.Cards = append(deck.Cards, card)
 }
 

@@ -7,7 +7,6 @@ import (
 type Player struct {
   Name string
   Level int
-  CurrentHitPoints int
 }
 
 func (player *Player) MaxHitPoints() int {

@@ -7,7 +7,7 @@ import (
 func Test_AddCard(t *testing.T) {
   deck := new(Deck)
   card := Card{ Name: "Cerato", Level: 10 }
-  deck.AddCard(card)
+  deck.AddCard(&card)
 
   expected := 1
   got := len(deck.Cards)

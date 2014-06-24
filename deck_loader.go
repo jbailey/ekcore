@@ -30,7 +30,7 @@ func LoadDeck(filepath string) *Deck {
         // fmt.Println("Card: ", card.Name)
         card, found := NewCard(cardName, 10)
         if found == true {
-          deck.AddCard(card)
+          deck.AddCard(&card)
         } else {
           log.Fatalf("Error! Card not found: %v", cardName)
         }

@@ -47,6 +47,10 @@ func Test_CardContainer_DrawCard(t *testing.T) {
   secondDrawnCard := cc.DrawCard()
   assert.NotNil(t, secondDrawnCard, "Second drawn Card should not be nil")
   assert.Equal(t, 0, cc.Size(), "Drawn card should have been removed")
+
+  // with empty hand
+  cc = NewCardContainer()
+  assert.Nil(t, cc.DrawCard(), "Should be nil when container is empty")
 }
 
 func Test_CardContainer_RemoveCard(t *testing.T) {
