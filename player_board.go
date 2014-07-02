@@ -39,9 +39,9 @@ func (pb *PlayerBoard) DrawCard() {
 
 func (pb *PlayerBoard) KillCard(idx int) {
 	card := pb.Battlefield.Cards[idx]
-	pb.Battlefield.RemoveCard(card)
+	pb.Battlefield.KillCard(card)
 	pb.Cemetery.AddCard(card)
-  log.Printf("%v died", card.Name)
+  log.Printf("%v IS DEAD", card.Name)
 }
 
 func (pb *PlayerBoard) DecrementWaits(amount int) {
@@ -51,12 +51,17 @@ func (pb *PlayerBoard) DecrementWaits(amount int) {
 }
 
 func (pb *PlayerBoard) MoveExpiredHandCards() {
+  expiredCards := make([]*Card, 0)
   for _, card := range pb.Hand.Cards {
     if card.Wait <= 0 {
-      fmt.Println("Card added to battlefield: ", card.Name)
-      pb.Hand.RemoveCard(card)
-      pb.Battlefield.AddCard(card)
+      expiredCards = append(expiredCards, card)
     }
+  }
+
+  for _, card := range expiredCards {
+    pb.Hand.RemoveCard(card)
+    pb.Battlefield.AddCard(card)
+    log.Println(card.Name ,"has entered the battlefield")
   }
 }
 

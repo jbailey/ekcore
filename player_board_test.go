@@ -80,16 +80,20 @@ func Test_PlayerBoard_DecrementWaits(t *testing.T) {
 }
 
 func Test_PlayerBoard_MoveExpiredHandCards(t *testing.T) {
-  card := Card{ Name: "Cerato", Wait: 0 }
+  card := &Card{ Name: "Cerato", Wait: 0 }
+  card2 := &Card{ Name: "Wild Duron", Wait: 0 }
   player := Player{ Name: "The Player", Level: 40 }
-  cards := []*Card{ &card }
+  cards := []*Card{ card, card2 }
   deck := Deck{ Cards: cards }
   playerBoard := NewPlayerBoard(player, deck)
   playerBoard.DrawCard()
+  playerBoard.DrawCard()
   playerBoard.MoveExpiredHandCards()
+
   assert.Equal(t, 0, playerBoard.Hand.Size(), "playerBoard hand should be empty")
-  assert.Equal(t, 1, playerBoard.Battlefield.Size(), "playerBoard battlefield should be have 1 card")
-  assert.True(t, playerBoard.Battlefield.DoesContain(&card), "playerBoard battlefield should contain Cerato")
+  assert.Equal(t, 2, playerBoard.Battlefield.Size(), "playerBoard battlefield should contain 2 cards")
+  assert.True(t, playerBoard.Battlefield.DoesContain(card), "playerBoard battlefield should contain Cerato")
+  assert.True(t, playerBoard.Battlefield.DoesContain(card), "playerBoard battlefield should contain Wild Duron")
 }
 
 func printTestHeader(name string) {

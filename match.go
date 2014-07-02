@@ -4,6 +4,8 @@ import (
 	"fmt"
   "log"
   "math"
+  "bufio"
+  "os"
 )
 
 type Match struct {
@@ -15,6 +17,7 @@ type Match struct {
   DefenderBoard   *PlayerBoard
 	Round           int
   Summary         *MatchSummary
+  InteractiveMode bool
 }
 
 func NewMatch(hero Player, opponent Player, heroDeck Deck, opponentDeck Deck) *Match {
@@ -36,10 +39,12 @@ func (match *Match) init() {
 
   match.AttackerBoard = &match.HeroBoard
   match.DefenderBoard = &match.OpponentBoard
+  match.InteractiveMode = false
 }
 
 // Run
 func (match *Match) Run() {
+  bio := bufio.NewReader(os.Stdin)
 	fmt.Printf("%v vs. %v\n", match.Hero.Name, match.Opponent.Name)
 
   match.init()
@@ -55,6 +60,12 @@ func (match *Match) Run() {
     } else {
       match.AttackerBoard, match.DefenderBoard = match.DefenderBoard, match.AttackerBoard
     }
+
+    if match.InteractiveMode {
+      fmt.Println("Hit Enter to continue, or q to quit")
+      input, _, _ := bio.ReadLine()
+      if string(input[:]) == "q" { return }
+    }
 	}
 
   match.printMatchSummary()
@@ -69,7 +80,7 @@ func (match *Match) UpdateHandWaits() {
 // DoRound
 func (match *Match) DoRound() {
   fmt.Println("-------------------------------------------")
-  fmt.Println("ROUND: ", match.Round)
+  fmt.Printf("ROUND: %d, %v Attacking\n", match.Round, match.AttackerBoard.Player.Name)
   fmt.Println("-------------------------------------------")
 
   // Update all card waits
@@ -82,8 +93,13 @@ func (match *Match) DoRound() {
   match.AttackerBoard.MoveExpiredHandCards()
 
   // Print out the boards
-  match.AttackerBoard.PrintBoard()
-  match.DefenderBoard.PrintBoard()
+  fmt.Printf("\n<-- BOARDS -->\n")
+  fmt.Println("---------------------------------------------")
+  match.HeroBoard.PrintBoard()
+  fmt.Println("---------------------------------------------")
+  match.OpponentBoard.PrintBoard()
+  fmt.Println("---------------------------------------------")
+  fmt.Println()
 
 
   // Activate Runes
@@ -92,26 +108,41 @@ func (match *Match) DoRound() {
   match.CardsAttack()
 
   fmt.Println("---===  END ROUND  ===---")
+  fmt.Printf("\n\n")
 }
 
 func (match *Match) CardsAttack() {
   for idx, card := range match.AttackerBoard.Battlefield.Cards {
-    if len(match.DefenderBoard.Battlefield.Cards) <= idx {
+    attackingSlot := match.AttackerBoard.Battlefield.GetSlotNumForCard(card)
+
+    // Execute lvl 0 ability
+    if card.Level0Skill != nil {
+      card.Level0Skill.Execute(card, match.AttackerBoard, match.DefenderBoard)
+    } else {
+      log.Printf("%v doesn't have a level 0 ability\n", card.Name)
+    }
+
+    defendingCard := match.DefenderBoard.Battlefield.CardAtSlot(attackingSlot)
+    fmt.Printf("%v attacking slot %d", card.Name, attackingSlot)
+    if defendingCard != nil {
+      fmt.Printf(", slot %d is occupied by %v\n", attackingSlot, defendingCard.Name)
+    } else {
+      fmt.Printf(", slot %d is empty, attacking player\n", attackingSlot)
+    }
+    if defendingCard == nil {
       match.PlayerAttack(card, match.DefenderBoard)
     } else {
-      defendingCard := match.DefenderBoard.Battlefield.Cards[idx]
       cardIsDead := match.AttackCard(card, defendingCard)
       if cardIsDead {
         match.DefenderBoard.KillCard(idx)
       }
     }
   }
+  match.DefenderBoard.Battlefield.Collapse()
 }
 
 func (match *Match) AttackCard(attackingCard *Card, defendingCard *Card) (cardIsDead bool) {
-  defendingCard.CurrentHitPoints = int(math.Dim(
-    float64(defendingCard.CurrentHitPoints),
-    float64(attackingCard.CurrentAttack)))
+  defendingCard.TakeDamage(attackingCard.CurrentAttack)
   log.Printf("%v hits %v for %d damage, %d HP remaining", attackingCard.Name, defendingCard.Name, attackingCard.CurrentAttack, defendingCard.CurrentHitPoints)
   if defendingCard.CurrentHitPoints < 0 { defendingCard.CurrentHitPoints = 0 }
   if defendingCard.CurrentHitPoints > 0 {
@@ -127,7 +158,7 @@ func (match *Match) PlayerAttack(attackingCard *Card, defendingBoard *PlayerBoar
   defendingBoard.CurrentHitPoints = int(math.Dim(
     float64(defendingBoard.CurrentHitPoints), 
     float64(attackingCard.CurrentAttack)))
-  fmt.Printf("%v attacks %v doing %d damage, leaving %d HP remaining\n",
+  log.Printf("%v attacks %v doing %d damage, leaving %d HP remaining\n",
     attackingCard.Name, defendingBoard.Player.Name, attackingCard.CurrentAttack, defendingBoard.CurrentHitPoints)
 }
 

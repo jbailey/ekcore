@@ -2,6 +2,7 @@ package ekcore
 
 import (
   "testing"
+  "github.com/stretchr/testify/assert"
 )
 
 func Test_CalculateAttack(t *testing.T) {
@@ -42,5 +43,22 @@ func Test_CalculateHitPoints(t *testing.T) {
   if expected != got {
     t.Errorf("Expected CalculateHitPoints() to be %v, got %v", expected, got)
   }
+}
 
+func Test_Card_TakeDamage(t *testing.T) {
+  card := &Card{ Name: "Test Card", Level: 3, CurrentHitPoints: 300 }
+
+  card.TakeDamage(200)
+  assert.Equal(t, 100, card.CurrentHitPoints, "Card should have 100 hit points remaining")
+}
+
+func Test_Card_Heal(t *testing.T) {
+  card := &Card{ Name: "Test Card", Level: 3, CurrentHitPoints: 200, MaxHitPoints: 300 }
+
+  card.Heal(100)
+  assert.Equal(t, 300, card.CurrentHitPoints)
+
+  card.CurrentHitPoints = 200
+  card.Heal(200)
+  assert.Equal(t, 300, card.CurrentHitPoints, "Heal shouldn't over-heal")
 }
